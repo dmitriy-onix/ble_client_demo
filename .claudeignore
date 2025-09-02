@@ -1,0 +1,124 @@
+# Flutter .claudeignore file
+# This file tells Claude which files and folders to ignore when analyzing your Flutter project
+
+# Build outputs and generated files
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+dist/
+
+# Platform-specific build folders
+android/app/build/
+android/.gradle/
+android/captures/
+android/gradlew
+android/gradlew.bat
+android/local.properties
+android/key.properties
+android/app/key/signing.properties
+android/app/key/**
+
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Runner.xcworkspace/
+ios/Runner.xcodeproj/
+ios/.symlinks/
+ios/Pods/
+ios/Podfile.lock
+
+# Generated code files
+*.g.dart
+*.freezed.dart
+*.config.dart
+*.chopper.dart
+*.pb.dart
+*.pbjson.dart
+*.pbgrpc.dart
+
+# Large asset folders
+assets/
+
+# Test coverage reports
+coverage/
+test/coverage_helper_test.dart
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+Thumbs.db
+
+# Environment and config files (containing sensitive data)
+.env
+.env.local
+.env.production
+.env.development
+
+# Documentation that changes frequently
+# CHANGELOG.md
+
+# Specific files you don't want Claude to analyze
+pubspec.lock
+analysis_options.yaml
+
+# Test files (uncomment if you want to ignore all tests)
+# test/
+# integration_test/
+
+# Specific file extensions
+*.keystore
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Large data files
+*.db
+*.sqlite
+*.sqlite3
+assets/data/large_dataset.json
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Mock and generated test files
+test/**/*.mocks.dart
+test/**/mock_*.dart
+
+# Firebase config (if sensitive)
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+
+# Flutter web build artifacts
+web/icons/
+web/splash/
+web/manifest.json
+
+# Example of ignoring specific nested files
+lib/generated/
+!lib/generated/important_file.dart  # Exception: don't ignore this specific file
+
+# Pattern examples:
+# *.extension        - ignores all files with that extension
+# folder/            - ignores entire folder
+# folder/**          - ignores folder and all contents recursively
+# !file.dart         - exception rule (don't ignore this file)
+# path/*/temp        - ignores temp folders at any level under path
