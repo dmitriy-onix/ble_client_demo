@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'core/app_routes.dart';
-import 'presentation/screens/ble_scan_screen.dart';
-import 'presentation/screens/ble_connected_screen.dart';
+import 'presentation/screens/scan_screen/ble_scan_screen.dart';
+import 'presentation/screens/connected_screen/ble_connected_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

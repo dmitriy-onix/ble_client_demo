@@ -1,45 +1,21 @@
-class BleDeviceData {
-  final String? deviceName;
-  final String? firmwareVersion;
-  final double? temperature;
-  final int? humidity;
-  final int? batteryLevel;
-  final String? status;
-  final bool ledState;
-  final String? logData;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const BleDeviceData({
-    this.deviceName,
-    this.firmwareVersion,
-    this.temperature,
-    this.humidity,
-    this.batteryLevel,
-    this.status,
-    this.ledState = false,
-    this.logData,
-  });
+part 'ble_device_data.freezed.dart';
 
-  BleDeviceData copyWith({
+@freezed
+abstract class BleDeviceData with _$BleDeviceData {
+  const factory BleDeviceData({
     String? deviceName,
     String? firmwareVersion,
     double? temperature,
     int? humidity,
     int? batteryLevel,
     String? status,
-    bool? ledState,
+    @Default(false) bool ledState,
     String? logData,
-  }) {
-    return BleDeviceData(
-      deviceName: deviceName ?? this.deviceName,
-      firmwareVersion: firmwareVersion ?? this.firmwareVersion,
-      temperature: temperature ?? this.temperature,
-      humidity: humidity ?? this.humidity,
-      batteryLevel: batteryLevel ?? this.batteryLevel,
-      status: status ?? this.status,
-      ledState: ledState ?? this.ledState,
-      logData: logData ?? this.logData,
-    );
-  }
+  }) = _BleDeviceData;
+
+  const BleDeviceData._();
 
   String get temperatureDisplay =>
       temperature != null ? '${temperature!.toStringAsFixed(1)}°C' : 'N/A';
@@ -48,4 +24,3 @@ class BleDeviceData {
 
   String get batteryDisplay => batteryLevel != null ? '$batteryLevel%' : 'N/A';
 }
-

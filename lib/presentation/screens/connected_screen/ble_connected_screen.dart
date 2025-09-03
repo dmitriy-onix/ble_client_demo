@@ -7,6 +7,11 @@ import 'package:ble_client_demo/models/ble_device_data.dart';
 import 'package:ble_client_demo/services/ble_service.dart';
 import 'package:flutter/material.dart';
 
+import 'widgets/actions_card.dart';
+import 'widgets/control_card.dart';
+import 'widgets/device_info_card.dart';
+import 'widgets/sensor_data_card.dart';
+
 class BleConnectedScreen extends StatefulWidget {
   const BleConnectedScreen({super.key});
 
@@ -122,6 +127,7 @@ class _BleConnectedScreenState extends State<BleConnectedScreen> {
     if (!context.mounted) {
       return;
     }
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Sent command: $randomCommand'),
@@ -137,7 +143,6 @@ class _BleConnectedScreenState extends State<BleConnectedScreen> {
         .where((status) => status != currentStatus)
         .toList();
 
-    // If all statuses are the same as current (shouldn't happen with 4 options), use all options
     final optionsToUse = availableOptions.isNotEmpty
         ? availableOptions
         : _availableStatuses;
@@ -184,142 +189,16 @@ class _BleConnectedScreenState extends State<BleConnectedScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDeviceInfoCard(context),
+            DeviceInfoCard(deviceData: _deviceData),
             const SizedBox(height: 16),
-            _buildSensorDataCard(context),
+            SensorDataCard(deviceData: _deviceData),
             const SizedBox(height: 16),
-            _buildControlCard(),
+            ControlCard(deviceData: _deviceData, onToggleLed: _toggleLed),
             const SizedBox(height: 16),
-            _buildActionsCard(context),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDeviceInfoCard(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Device Information',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text('Name: ${_deviceData.deviceName ?? "Unknown"}'),
-            Text('Firmware: ${_deviceData.firmwareVersion ?? "Unknown"}'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSensorDataCard(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Sensor Data',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Column(
-                  children: [
-                    const Icon(Icons.thermostat, size: 32),
-                    Text(_deviceData.temperatureDisplay),
-                  ],
-                ),
-                Column(
-                  children: [
-                    const Icon(Icons.water_drop, size: 32),
-                    Text(_deviceData.humidityDisplay),
-                  ],
-                ),
-                Column(
-                  children: [
-                    const Icon(Icons.battery_std, size: 32),
-                    Text(_deviceData.batteryDisplay),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildControlCard() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Control',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Text('LED: '),
-                Switch(
-                  value: _deviceData.ledState,
-                  onChanged: (_) => _toggleLed(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Status',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(_deviceData.status ?? "Unknown"),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionsCard(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Actions',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: [
-                ElevatedButton(
-                  onPressed: _readDeviceInfo,
-                  child: const Text('Refresh Data'),
-                ),
-                ElevatedButton(
-                  onPressed: () => _sendRandomCommand(context),
-                  child: const Text('Send Random Command'),
-                ),
-                ElevatedButton(
-                  onPressed: () => _updateRandomStatus(context),
-                  child: const Text('Update Status'),
-                ),
-              ],
+            ActionsCard(
+              onRefreshData: _readDeviceInfo,
+              onSendRandomCommand: () => _sendRandomCommand(context),
+              onUpdateRandomStatus: () => _updateRandomStatus(context),
             ),
           ],
         ),

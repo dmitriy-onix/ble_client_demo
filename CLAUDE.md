@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Flutter BLE (Bluetooth Low Energy) client demo application that connects to custom BLE servers. The app features a complete BLE client implementation with device scanning, connection management, and real-time sensor data monitoring.
+This is a Flutter BLE (Bluetooth Low Energy) client demo application that connects to custom BLE servers. The app features a complete BLE client implementation with device scanning, connection management, and real-time sensor data monitoring. The project uses clean architecture with BLoC pattern for state management, Freezed for immutable data models, and modular widget organization.
 
 ## Development Commands
 
@@ -28,6 +28,11 @@ This is a Flutter BLE (Bluetooth Low Energy) client demo application that connec
 - `flutter pub upgrade` - Upgrade dependencies to latest versions
 - `flutter clean` - Clean build artifacts (recommended after major changes)
 
+### Code Generation Commands
+- `dart run build_runner build` - Generate Freezed and other code generation files
+- `dart run build_runner build --delete-conflicting-outputs` - Force regenerate all generated files
+- `dart run build_runner clean` - Clean generated files cache
+
 ### Device Management
 - `flutter devices` - List available devices/emulators
 - `flutter emulators` - List available emulators
@@ -35,7 +40,7 @@ This is a Flutter BLE (Bluetooth Low Energy) client demo application that connec
 
 ## Architecture Overview
 
-The app follows a clean architecture pattern with dependency injection using GetIt. The BLE functionality is implemented using `flutter_blue_plus` package.
+The app follows a clean architecture pattern with the BLoC pattern for state management. The BLE functionality is implemented using `flutter_blue_plus` package.
 
 ### Core Architecture Components
 
@@ -44,17 +49,52 @@ The app follows a clean architecture pattern with dependency injection using Get
 - Initialized in `main.dart` before app startup
 - Accessed via `getIt<BleService>()` throughout the app
 
+**State Management**: BLoC Architecture with OnixFlutterTeam's enhanced BLoC classes
+- Uses custom `BaseBloc` and `BaseCubit` for enhanced functionality
+- Includes Single Result events for one-time UI interactions (navigation, toasts, etc.)
+- Progress and failure stream mixins for consistent loading/error handling
+- Stream-based reactive updates with proper lifecycle management
+
 **Navigation**: Two-screen flow with centralized route management
 - Scan Screen (`/scan`) - Device discovery and connection
 - Connected Screen (`/connected`) - Device interaction and control
 - Routes defined in `AppRoutes` class for type safety
 
-**State Management**: StatefulWidget with Stream-based reactive updates
-- BLE service provides data streams for real-time updates
-- UI components listen to streams for automatic state updates
-- Connection state managed independently from device data
+**Widget Organization**: Modular widget structure
+- Main screens broken into smaller, reusable widgets
+- Organized in dedicated `widgets/` folders for maintainability
+- Each widget has focused responsibility
 
-### Key Services and Models
+### Enhanced BLoC Architecture
+
+The project includes a complete BLoC architecture setup from OnixFlutterTeam with:
+
+**Base Classes** (`lib/arch/bloc/`)
+- `BaseBloc<Event, State, SR>` - Enhanced BLoC with Single Result support
+- `BaseCubit<State, SR>` - Enhanced Cubit with Single Result support
+- `BaseState<S, B, SR, W>` - Base state class for BLoC-powered screens
+- `BaseCubitState<S, C, SR, W>` - Base state class for Cubit-powered screens
+
+**Mixins** (`lib/arch/bloc/mixins/`)
+- `SingleResultBlocMixin` - Adds Single Result capability to BLoCs
+- `SingleResultCubitMixin` - Adds Single Result capability to Cubits
+- `ProgressStreamMixin` - Handles loading states with progress streams
+- `FailureStreamMixin` - Manages error states with failure streams
+- `BlocBuildersMixin` - Provides convenient builder methods for BLoC widgets
+
+**Utilities**
+- `AppBlocObserver` - Debug observer for BLoC events and errors
+- `StreamListener<T>` - Widget for managing stream lifecycle
+- Type definitions for common BLoC callback functions
+
+### Data Models
+
+**Freezed Integration**: All data models use Freezed for immutability
+- `BleDeviceData` - Device information with Freezed copyWith and equality
+- `BleConnectionState` - Connection state management with Freezed
+- Automatic code generation for data classes with proper serialization
+
+## Key Services and Models
 
 **BleService** (`lib/services/ble_service.dart`)
 - Singleton service handling all BLE operations
@@ -92,7 +132,14 @@ Use the included `Creating a BLE Server with nRF Connect.md` guide to set up a t
 - Dart SDK: ^3.8.1
 - Key Dependencies:
   - `flutter_blue_plus: ^1.35.5` - BLE functionality
-  - `get_it: ^7.6.7` - Dependency injection
+  - `get_it: ^8.2.0` - Dependency injection
+  - `flutter_bloc: ^9.1.1` - State management
+  - `freezed_annotation: ^3.1.0` - Code generation annotations
+  - `loader_overlay: ^5.0.0` - Loading overlay support
+  - `flutter_lints: ^6.0.0` - Static analysis rules
+- Dev Dependencies:
+  - `freezed: ^3.2.0` - Code generation for data classes
+  - `build_runner: ^2.7.1` - Code generation runner
 - Platform Support: Android, iOS (macOS/Web have limited BLE support)
 - Android: Requires location permissions for BLE scanning
 - iOS: Requires Bluetooth usage descriptions in Info.plist
@@ -101,21 +148,52 @@ Use the included `Creating a BLE Server with nRF Connect.md` guide to set up a t
 
 ```
 lib/
-├── main.dart                     # App initialization and GetIt setup
-├── app.dart                      # MaterialApp configuration and routing
+├── main.dart                          # App initialization and GetIt setup
+├── app.dart                           # MaterialApp configuration and routing
+├── arch/                              # Architecture components
+│   ├── bloc/                          # BLoC architecture classes
+│   │   ├── base_bloc/                 # Enhanced BLoC classes
+│   │   │   ├── base_bloc.dart         # Base BLoC with mixins
+│   │   │   ├── base_bloc_state.dart   # Base state for BLoC screens
+│   │   │   └── sr_bloc_mixin.dart     # Single Result mixin for BLoCs
+│   │   ├── base_cubit/                # Enhanced Cubit classes
+│   │   │   ├── base_cubit.dart        # Base Cubit with mixins
+│   │   │   ├── base_cubit_state.dart  # Base state for Cubit screens
+│   │   │   └── sr_cubit_mixin.dart    # Single Result mixin for Cubits
+│   │   ├── mixins/                    # BLoC utility mixins
+│   │   │   ├── bloc_builders_mixin.dart # Builder convenience methods
+│   │   │   ├── failure_stream_mixin.dart # Error handling
+│   │   │   └── progress_stream_mixin.dart # Loading states
+│   │   ├── app_bloc_observer.dart     # Debug observer
+│   │   ├── bloc_typedefs.dart         # Type definitions
+│   │   └── stream_listener.dart       # Stream lifecycle widget
+│   ├── domain/                        # Domain layer components
+│   │   ├── failure/                   # Error handling models
+│   │   └── progress_state/            # Loading state models
+│   └── models/                        # Core architecture models
+│       └── core_models.dart           # Base models for architecture
 ├── core/
-│   ├── service_locator.dart      # GetIt dependency injection setup
-│   └── app_routes.dart           # Centralized route constants
+│   ├── service_locator.dart           # GetIt dependency injection setup
+│   └── app_routes.dart                # Centralized route constants
 ├── constants/
-│   └── ble_uuids.dart           # BLE service and characteristic UUIDs
-├── models/
-│   ├── ble_device_data.dart     # Device data model with display formatters
-│   └── ble_connection_state.dart # Connection state management
+│   └── ble_uuids.dart                # BLE service and characteristic UUIDs
+├── models/                            # Data models (Freezed)
+│   ├── ble_device_data.dart          # Device data model with display formatters
+│   ├── ble_device_data.freezed.dart  # Generated Freezed code
+│   ├── ble_connection_state.dart     # Connection state management
+│   └── ble_connection_state.freezed.dart # Generated Freezed code
 ├── services/
-│   └── ble_service.dart         # Core BLE service implementation
+│   └── ble_service.dart              # Core BLE service implementation
 └── presentation/screens/
-    ├── ble_scan_screen.dart     # Device scanning and connection UI
-    └── ble_connected_screen.dart # Device interaction and control UI
+    ├── connected_screen/
+    │   ├── ble_connected_screen.dart  # Main connected screen
+    │   └── widgets/                   # Modular UI components
+    │       ├── device_info_card.dart  # Device information display
+    │       ├── sensor_data_card.dart  # Sensor readings display
+    │       ├── control_card.dart      # Device controls
+    │       └── actions_card.dart      # Action buttons
+    └── scan_screen/
+        └── ble_scan_screen.dart       # Device scanning and connection UI
 ```
 
 ## Important Notes
@@ -125,3 +203,7 @@ lib/
 - Debug prints are enabled in BleService for development troubleshooting
 - Connection state and device data are managed separately for better state isolation
 - UI uses Material 3 design system with reactive card-based layouts
+- All data models use Freezed for immutability and code generation
+- Enhanced BLoC architecture supports Single Result events for one-time UI actions
+- Widget organization follows modular patterns for better maintainability
+- Stream-based reactive programming with proper lifecycle management

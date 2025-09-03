@@ -55,6 +55,8 @@ class BleService {
       await _setupNotifications();
       return true;
     } catch (e) {
+      debugPrint('connectToDevice error: $e');
+      connectedDevice = null;
       return false;
     }
   }
@@ -67,9 +69,10 @@ class BleService {
   }
 
   Future<void> _discoverServices() async {
-    if (connectedDevice == null) return;
+    final device = connectedDevice;
+    if (device == null) return;
 
-    final services = await connectedDevice!.discoverServices();
+    final services = await device.discoverServices();
 
     for (final service in services) {
       switch (service.uuid.toString().toLowerCase()) {
@@ -87,8 +90,11 @@ class BleService {
   }
 
   Future<void> _setupNotifications() async {
-    if (sensorDataService != null) {
-      for (final characteristic in sensorDataService!.characteristics) {
+    final sensor = sensorDataService;
+    final control = controlService;
+
+    if (sensor != null) {
+      for (final characteristic in sensor.characteristics) {
         if (characteristic.properties.notify) {
           await characteristic.setNotifyValue(true);
           characteristic.onValueReceived.listen((value) {
@@ -98,8 +104,8 @@ class BleService {
       }
     }
 
-    if (controlService != null) {
-      for (final characteristic in controlService!.characteristics) {
+    if (control != null) {
+      for (final characteristic in control.characteristics) {
         if (characteristic.properties.notify) {
           await characteristic.setNotifyValue(true);
           characteristic.onValueReceived.listen((value) {
@@ -174,7 +180,12 @@ class BleService {
       deviceInfoService,
       BleUuids.deviceNameCharacteristic,
     );
-    if (characteristic != null) {
+
+    if (characteristic == null) {
+      return null;
+    }
+
+    try {
       final value = await characteristic.read();
       debugPrint('readDeviceName value: $value');
 
@@ -184,8 +195,9 @@ class BleService {
 
       _deviceNameController.add(deviceName);
       return deviceName;
+    } catch (e) {
+      return null;
     }
-    return null;
   }
 
   Future<String?> readFirmwareVersion() async {
@@ -193,19 +205,23 @@ class BleService {
       deviceInfoService,
       BleUuids.firmwareVersionCharacteristic,
     );
-    if (characteristic != null) {
-      final value = await characteristic.read();
 
+    if (characteristic == null) {
+      return null;
+    }
+
+    try {
+      final value = await characteristic.read();
       debugPrint('readFirmwareVersion value: $value');
 
       final version = utf8.decode(value);
-
       debugPrint('readFirmwareVersion version: $version');
 
       _firmwareVersionController.add(version);
       return version;
+    } catch (e) {
+      return null;
     }
-    return null;
   }
 
   Future<double?> readTemperature() async {
@@ -213,17 +229,23 @@ class BleService {
       sensorDataService,
       BleUuids.temperatureCharacteristic,
     );
-    if (characteristic != null) {
-      final value = await characteristic.read();
 
-      debugPrint('readTemperature: value: $value');
+    if (characteristic == null) {
+      return null;
+    }
+
+    try {
+      final value = await characteristic.read();
+      debugPrint('readTemperature value: $value');
+
       final temperature = _parseTemperature(value);
       debugPrint('readTemperature temperature: $temperature');
 
       _temperatureController.add(temperature);
       return temperature;
+    } catch (e) {
+      return null;
     }
-    return null;
   }
 
   Future<int?> readHumidity() async {
@@ -231,16 +253,23 @@ class BleService {
       sensorDataService,
       BleUuids.humidityCharacteristic,
     );
-    if (characteristic != null) {
+
+    if (characteristic == null) {
+      return null;
+    }
+
+    try {
       final value = await characteristic.read();
       debugPrint('readHumidity value: $value');
+
       final humidity = _parseHumidity(value);
       debugPrint('readHumidity humidity: $humidity');
 
       _humidityController.add(humidity);
       return humidity;
+    } catch (e) {
+      return null;
     }
-    return null;
   }
 
   Future<int?> readBatteryLevel() async {
@@ -248,16 +277,23 @@ class BleService {
       sensorDataService,
       BleUuids.batteryLevelCharacteristic,
     );
-    if (characteristic != null) {
+
+    if (characteristic == null) {
+      return null;
+    }
+
+    try {
       final value = await characteristic.read();
       debugPrint('readBatteryLevel value: $value');
+
       final batteryLevel = _parseBatteryLevel(value);
       debugPrint('readBatteryLevel batteryLevel: $batteryLevel');
 
       _batteryLevelController.add(batteryLevel);
       return batteryLevel;
+    } catch (e) {
+      return null;
     }
-    return null;
   }
 
   Future<String?> readStatus() async {
@@ -265,18 +301,23 @@ class BleService {
       controlService,
       BleUuids.statusCharacteristic,
     );
-    if (characteristic != null) {
+
+    if (characteristic == null) {
+      return null;
+    }
+
+    try {
       final value = await characteristic.read();
       debugPrint('readStatus value: $value');
 
       final status = _parseStatus(value);
-
       debugPrint('readStatus status: $status');
 
       _statusController.add(status);
       return status;
+    } catch (e) {
+      return null;
     }
-    return null;
   }
 
   Future<bool> writeLedControl(int value) async {
@@ -284,16 +325,18 @@ class BleService {
       controlService,
       BleUuids.ledControlCharacteristic,
     );
-    if (characteristic != null) {
-      try {
-        debugPrint('writeLedControl value: $value');
-        await characteristic.write([value], withoutResponse: true);
-        return true;
-      } catch (e) {
-        return false;
-      }
+
+    if (characteristic == null) {
+      return false;
     }
-    return false;
+
+    try {
+      debugPrint('writeLedControl value: $value');
+      await characteristic.write([value], withoutResponse: true);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<bool> writeCommand(String command) async {
@@ -301,16 +344,18 @@ class BleService {
       controlService,
       BleUuids.commandCharacteristic,
     );
-    if (characteristic != null) {
-      try {
-        debugPrint('writeCommand command: $command');
-        await characteristic.write(utf8.encode(command));
-        return true;
-      } catch (e) {
-        return false;
-      }
+
+    if (characteristic == null) {
+      return false;
     }
-    return false;
+
+    try {
+      debugPrint('writeCommand command: $command');
+      await characteristic.write(utf8.encode(command));
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<bool> writeStatus(String status) async {
@@ -318,16 +363,18 @@ class BleService {
       controlService,
       BleUuids.statusCharacteristic,
     );
-    if (characteristic != null) {
-      try {
-        debugPrint('writeStatus status: $status');
-        await characteristic.write(utf8.encode(status));
-        return true;
-      } catch (e) {
-        return false;
-      }
+
+    if (characteristic == null) {
+      return false;
     }
-    return false;
+
+    try {
+      debugPrint('writeStatus status: $status');
+      await characteristic.write(utf8.encode(status));
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   BluetoothCharacteristic? _findCharacteristic(

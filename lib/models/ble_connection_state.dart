@@ -1,27 +1,17 @@
-class BleConnectionState {
-  final bool isConnected;
-  final bool isConnecting;
-  final bool isScanning;
-  final String? error;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const BleConnectionState({
-    this.isConnected = false,
-    this.isConnecting = false,
-    this.isScanning = false,
-    this.error,
-  });
+part 'ble_connection_state.freezed.dart';
 
-  BleConnectionState copyWith({
-    bool? isConnected,
-    bool? isConnecting,
-    bool? isScanning,
+@freezed
+abstract class BleConnectionState with _$BleConnectionState {
+  const factory BleConnectionState({
+    @Default(false) bool isConnected,
+    @Default(false) bool isConnecting,
+    @Default(false) bool isScanning,
     String? error,
-  }) {
-    return BleConnectionState(
-      isConnected: isConnected ?? this.isConnected,
-      isConnecting: isConnecting ?? this.isConnecting,
-      isScanning: isScanning ?? this.isScanning,
-      error: error ?? this.error,
-    );
-  }
+  }) = _BleConnectionState;
+
+  const BleConnectionState._();
+
+  factory BleConnectionState.empty() => const BleConnectionState();
 }
