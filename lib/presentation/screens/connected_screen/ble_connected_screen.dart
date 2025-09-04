@@ -1,9 +1,10 @@
-import 'dart:async';
-import 'dart:math';
-
+import 'package:ble_client_demo/arch/bloc/base_bloc/base_bloc_state.dart';
+import 'package:ble_client_demo/arch/domain/failure/failure.dart';
 import 'package:ble_client_demo/core/app_routes.dart';
 import 'package:ble_client_demo/core/service_locator.dart';
-import 'package:ble_client_demo/models/ble_device_data.dart';
+import 'package:ble_client_demo/presentation/screens/connected_screen/bloc/connected_screen_bloc.dart';
+import 'package:ble_client_demo/presentation/screens/connected_screen/bloc/connected_screen_models.dart';
+import 'package:ble_client_demo/presentation/screens/connected_screen/failures/connected_failures.dart';
 import 'package:ble_client_demo/services/ble_service.dart';
 import 'package:flutter/material.dart';
 
@@ -19,160 +20,16 @@ class BleConnectedScreen extends StatefulWidget {
   State<BleConnectedScreen> createState() => _BleConnectedScreenState();
 }
 
-class _BleConnectedScreenState extends State<BleConnectedScreen> {
-  late final BleService _bleService;
-  BleDeviceData _deviceData = const BleDeviceData();
-  StreamSubscription? _deviceNameSubscription;
-  StreamSubscription? _firmwareVersionSubscription;
-  StreamSubscription? _temperatureSubscription;
-  StreamSubscription? _humiditySubscription;
-  StreamSubscription? _batterySubscription;
-  StreamSubscription? _statusSubscription;
-
-  static const List<String> _availableCommands = [
-    'ping',
-    'reset',
-    'status',
-    'hello',
-    'test',
-  ];
-
-  static const List<String> _availableStatuses = [
-    'idle',
-    'ready',
-    'busy',
-    'error',
-  ];
-
+class _BleConnectedScreenState
+    extends
+        BaseState<
+          ConnectedScreenState,
+          ConnectedScreenBloc,
+          ConnectedScreenSR,
+          BleConnectedScreen
+        > {
   @override
-  void initState() {
-    super.initState();
-    _bleService = getIt<BleService>();
-    _setupSubscriptions();
-    _readDeviceInfo();
-  }
-
-  void _setupSubscriptions() {
-    _deviceNameSubscription = _bleService.deviceNameStream.listen((name) {
-      setState(() {
-        _deviceData = _deviceData.copyWith(deviceName: name);
-      });
-    });
-
-    _firmwareVersionSubscription = _bleService.firmwareVersionStream.listen((
-      name,
-    ) {
-      setState(() {
-        _deviceData = _deviceData.copyWith(firmwareVersion: name);
-      });
-    });
-
-    _temperatureSubscription = _bleService.temperatureStream.listen((temp) {
-      setState(() {
-        _deviceData = _deviceData.copyWith(temperature: temp);
-      });
-    });
-
-    _humiditySubscription = _bleService.humidityStream.listen((humidity) {
-      setState(() {
-        _deviceData = _deviceData.copyWith(humidity: humidity);
-      });
-    });
-
-    _batterySubscription = _bleService.batteryLevelStream.listen((battery) {
-      setState(() {
-        _deviceData = _deviceData.copyWith(batteryLevel: battery);
-      });
-    });
-
-    _statusSubscription = _bleService.statusStream.listen((status) {
-      setState(() {
-        _deviceData = _deviceData.copyWith(status: status);
-      });
-    });
-  }
-
-  Future<void> _readDeviceInfo() async {
-    await _bleService.readDeviceName();
-    await _bleService.readFirmwareVersion();
-    await _bleService.readTemperature();
-    await _bleService.readHumidity();
-    await _bleService.readBatteryLevel();
-    await _bleService.readStatus();
-  }
-
-  Future<void> _disconnect() async {
-    await _bleService.disconnect();
-    if (mounted) {
-      Navigator.pushReplacementNamed(context, AppRoutes.scan);
-    }
-  }
-
-  Future<void> _toggleLed() async {
-    final newState = !_deviceData.ledState;
-    final success = await _bleService.writeLedControl(newState ? 1 : 0);
-    if (success) {
-      setState(() {
-        _deviceData = _deviceData.copyWith(ledState: newState);
-      });
-    }
-  }
-
-  Future<void> _sendRandomCommand(BuildContext context) async {
-    final random = Random();
-    final randomIndex = random.nextInt(_availableCommands.length);
-    final randomCommand = _availableCommands[randomIndex];
-    await _bleService.writeCommand(randomCommand);
-
-    if (!context.mounted) {
-      return;
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Sent command: $randomCommand'),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  Future<void> _updateRandomStatus(BuildContext context) async {
-    final currentStatus = _deviceData.status;
-    final availableOptions = _availableStatuses
-        .where((status) => status != currentStatus)
-        .toList();
-
-    final optionsToUse = availableOptions.isNotEmpty
-        ? availableOptions
-        : _availableStatuses;
-
-    final random = Random();
-    final randomIndex = random.nextInt(optionsToUse.length);
-    final randomStatus = optionsToUse[randomIndex];
-    final success = await _bleService.writeStatus(randomStatus);
-
-    if (!context.mounted) {
-      return;
-    }
-
-    if (success) {
-      setState(() {
-        _deviceData = _deviceData.copyWith(status: randomStatus);
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to update status'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget buildWidget(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -180,7 +37,8 @@ class _BleConnectedScreenState extends State<BleConnectedScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.bluetooth_disabled),
-            onPressed: _disconnect,
+            onPressed: () =>
+                blocOf(context).add(const ConnectedScreenEvent.disconnect()),
           ),
         ],
       ),
@@ -189,16 +47,39 @@ class _BleConnectedScreenState extends State<BleConnectedScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DeviceInfoCard(deviceData: _deviceData),
+            blocBuilder(
+              builder: (context, state) {
+                return DeviceInfoCard(deviceData: state.deviceData);
+              },
+            ),
             const SizedBox(height: 16),
-            SensorDataCard(deviceData: _deviceData),
+            blocBuilder(
+              builder: (context, state) {
+                return SensorDataCard(deviceData: state.deviceData);
+              },
+            ),
             const SizedBox(height: 16),
-            ControlCard(deviceData: _deviceData, onToggleLed: _toggleLed),
+            blocBuilder(
+              builder: (context, state) {
+                return ControlCard(
+                  deviceData: state.deviceData,
+                  onToggleLed: () => blocOf(
+                    context,
+                  ).add(const ConnectedScreenEvent.toggleLed()),
+                );
+              },
+            ),
             const SizedBox(height: 16),
             ActionsCard(
-              onRefreshData: _readDeviceInfo,
-              onSendRandomCommand: () => _sendRandomCommand(context),
-              onUpdateRandomStatus: () => _updateRandomStatus(context),
+              onRefreshData: () => blocOf(
+                context,
+              ).add(const ConnectedScreenEvent.readDeviceInfo()),
+              onSendRandomCommand: () => blocOf(
+                context,
+              ).add(const ConnectedScreenEvent.sendRandomCommand()),
+              onUpdateRandomStatus: () => blocOf(
+                context,
+              ).add(const ConnectedScreenEvent.updateRandomStatus()),
             ),
           ],
         ),
@@ -207,13 +88,47 @@ class _BleConnectedScreenState extends State<BleConnectedScreen> {
   }
 
   @override
-  void dispose() {
-    _deviceNameSubscription?.cancel();
-    _firmwareVersionSubscription?.cancel();
-    _temperatureSubscription?.cancel();
-    _humiditySubscription?.cancel();
-    _batterySubscription?.cancel();
-    _statusSubscription?.cancel();
-    super.dispose();
+  ConnectedScreenBloc createBloc() =>
+      ConnectedScreenBloc(bleService: getIt<BleService>());
+
+  @override
+  void onBlocCreated(BuildContext context, ConnectedScreenBloc bloc) {
+    bloc.add(const ConnectedScreenEvent.init());
+    super.onBlocCreated(context, bloc);
+  }
+
+  @override
+  void onSR(BuildContext context, ConnectedScreenSR sr) {
+    sr.when(
+      disconnected: () {
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, AppRoutes.scan);
+        }
+      },
+      commandSent: (command) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sent command: $command'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
+    );
+    super.onSR(context, sr);
+  }
+
+  @override
+  void onFailure(BuildContext context, Failure failure) {
+    if (failure is ConnectedFailure) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(failure.message),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+    super.onFailure(context, failure);
   }
 }
