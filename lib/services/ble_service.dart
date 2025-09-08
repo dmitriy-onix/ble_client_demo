@@ -11,6 +11,7 @@ class BleService {
   BluetoothService? deviceInfoService;
   BluetoothService? sensorDataService;
   BluetoothService? controlService;
+  StreamSubscription? _bondStateSubscription;
 
   final StreamController<String> _deviceNameController =
       StreamController<String>.broadcast();
@@ -24,6 +25,10 @@ class BleService {
       StreamController<int>.broadcast();
   final StreamController<String> _statusController =
       StreamController<String>.broadcast();
+  final StreamController<bool> _bondedController =
+      StreamController<bool>.broadcast();
+
+  bool _currentBondedState = false;
 
   Stream<String> get deviceNameStream => _deviceNameController.stream;
 
@@ -36,6 +41,10 @@ class BleService {
   Stream<int> get batteryLevelStream => _batteryLevelController.stream;
 
   Stream<String> get statusStream => _statusController.stream;
+
+  Stream<bool> get bondedStream => _bondedController.stream;
+
+  bool get currentBondedState => _currentBondedState;
 
   Future<void> startScan() async {
     await FlutterBluePlus.startScan(timeout: const Duration(seconds: 15));
@@ -53,6 +62,7 @@ class BleService {
       connectedDevice = device;
       await _discoverServices();
       await _setupNotifications();
+      _setupBondStateMonitoring();
       return true;
     } catch (e) {
       debugPrint('connectToDevice error: $e');
@@ -66,6 +76,9 @@ class BleService {
       await connectedDevice!.disconnect();
       connectedDevice = null;
     }
+    _currentBondedState = false;
+    _bondStateSubscription?.cancel();
+    _bondStateSubscription = null;
   }
 
   Future<void> _discoverServices() async {
@@ -113,6 +126,52 @@ class BleService {
           });
         }
       }
+    }
+  }
+
+  void _setupBondStateMonitoring() {
+    final device = connectedDevice;
+    if (device == null) return;
+
+    _bondStateSubscription?.cancel();
+
+    _bondStateSubscription = device.bondState.listen((bondState) {
+      debugPrint('Bond state changed to: $bondState');
+      final isBonded = bondState == BluetoothBondState.bonded;
+      _currentBondedState = isBonded;
+      _bondedController.add(isBonded);
+    });
+
+    _checkInitialBondState();
+  }
+
+  Future<void> _checkInitialBondState() async {
+    final device = connectedDevice;
+    if (device == null) return;
+
+    try {
+      debugPrint('Checking initial bond state from stream...');
+      final bondStateTimeout = device.bondState.timeout(
+        const Duration(seconds: 2),
+        onTimeout: (sink) {
+          debugPrint('Bond state stream timeout - assuming not bonded');
+          sink.add(BluetoothBondState.none);
+        },
+      );
+
+      await for (final bondState in bondStateTimeout.take(1)) {
+        final isBonded = bondState == BluetoothBondState.bonded;
+        debugPrint('Bond state from stream: $bondState (bonded: $isBonded)');
+        _currentBondedState = isBonded;
+        _bondedController.add(isBonded);
+        break;
+      }
+    } catch (error) {
+      debugPrint(
+        'Error checking initial bond state: $error - assuming not bonded',
+      );
+      _currentBondedState = false;
+      _bondedController.add(false);
     }
   }
 
@@ -316,6 +375,7 @@ class BleService {
       _statusController.add(status);
       return status;
     } catch (e) {
+      debugPrint('readStatus error: $e - Control Service requires bonding');
       return null;
     }
   }
@@ -335,6 +395,9 @@ class BleService {
       await characteristic.write([value], withoutResponse: true);
       return true;
     } catch (e) {
+      debugPrint(
+        'writeLedControl error: $e - Control Service requires bonding',
+      );
       return false;
     }
   }
@@ -354,6 +417,7 @@ class BleService {
       await characteristic.write(utf8.encode(command));
       return true;
     } catch (e) {
+      debugPrint('writeCommand error: $e - Control Service requires bonding');
       return false;
     }
   }
@@ -373,6 +437,7 @@ class BleService {
       await characteristic.write(utf8.encode(status));
       return true;
     } catch (e) {
+      debugPrint('writeStatus error: $e - Control Service requires bonding');
       return false;
     }
   }
@@ -393,12 +458,119 @@ class BleService {
 
   bool get isConnected => connectedDevice?.isConnected ?? false;
 
+  bool get isBonded {
+    final device = connectedDevice;
+    if (device == null) return false;
+    // For flutter_blue_plus, bondState is a Stream, so we can't check synchronously
+    // This will be updated via stream listener
+    return false; // Default to false, will be updated by stream
+  }
+
+  Future<bool> createBond() async {
+    final device = connectedDevice;
+    if (device == null) return false;
+
+    try {
+      debugPrint(
+        'createBond: Attempting to bond with device ${device.platformName}',
+      );
+      await device.createBond();
+
+      // Listen to bond state changes to determine success
+      final bondStateCompleter = Completer<bool>();
+      late StreamSubscription subscription;
+
+      subscription = device.bondState.listen((bondState) {
+        debugPrint('createBond: Bond state changed to $bondState');
+        if (bondState == BluetoothBondState.bonded) {
+          _currentBondedState = true;
+          _bondedController.add(true);
+          if (!bondStateCompleter.isCompleted) {
+            bondStateCompleter.complete(true);
+          }
+        } else if (bondState == BluetoothBondState.none) {
+          _currentBondedState = false;
+          _bondedController.add(false);
+          if (!bondStateCompleter.isCompleted) {
+            bondStateCompleter.complete(false);
+          }
+        }
+      });
+
+      // Wait for bonding result with timeout
+      final result = await bondStateCompleter.future.timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          _currentBondedState = false;
+          _bondedController.add(false);
+          return false;
+        },
+      );
+
+      subscription.cancel();
+      return result;
+    } catch (e) {
+      debugPrint('createBond error: $e');
+      _currentBondedState = false;
+      _bondedController.add(false);
+      return false;
+    }
+  }
+
+  Future<bool> removeBond() async {
+    final device = connectedDevice;
+    if (device == null) return false;
+
+    try {
+      debugPrint(
+        'removeBond: Removing bond with device ${device.platformName}',
+      );
+      await device.removeBond();
+
+      // Listen to bond state changes to determine success
+      final bondStateCompleter = Completer<bool>();
+      late StreamSubscription subscription;
+
+      subscription = device.bondState.listen((bondState) {
+        debugPrint('removeBond: Bond state changed to $bondState');
+        if (bondState == BluetoothBondState.none) {
+          _currentBondedState = false;
+          _bondedController.add(false);
+          if (!bondStateCompleter.isCompleted) {
+            bondStateCompleter.complete(true); // Success means bond was removed
+          }
+        }
+      });
+
+      // Wait for bond removal result with timeout
+      final result = await bondStateCompleter.future.timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          // Assume success if no response
+          _currentBondedState = false;
+          _bondedController.add(false);
+          return true;
+        },
+      );
+
+      subscription.cancel();
+      return result;
+    } catch (e) {
+      debugPrint('removeBond error: $e');
+      _currentBondedState = false;
+      _bondedController.add(false);
+      return false;
+    }
+  }
+
   void dispose() {
+    _bondStateSubscription?.cancel();
     _deviceNameController.close();
     _firmwareVersionController.close();
     _temperatureController.close();
     _humidityController.close();
     _batteryLevelController.close();
     _statusController.close();
+    _bondedController.close();
   }
 }

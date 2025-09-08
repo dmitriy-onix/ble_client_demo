@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$BleDeviceData {
 
- String? get deviceName; String? get firmwareVersion; double? get temperature; int? get humidity; int? get batteryLevel; String? get status; bool get ledState; String? get logData;
+ String? get deviceName; String? get firmwareVersion; double? get temperature; int? get humidity; int? get batteryLevel; String? get status; bool get ledState; bool get isBonded; String? get logData;
 /// Create a copy of BleDeviceData
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $BleDeviceDataCopyWith<BleDeviceData> get copyWith => _$BleDeviceDataCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BleDeviceData&&(identical(other.deviceName, deviceName) || other.deviceName == deviceName)&&(identical(other.firmwareVersion, firmwareVersion) || other.firmwareVersion == firmwareVersion)&&(identical(other.temperature, temperature) || other.temperature == temperature)&&(identical(other.humidity, humidity) || other.humidity == humidity)&&(identical(other.batteryLevel, batteryLevel) || other.batteryLevel == batteryLevel)&&(identical(other.status, status) || other.status == status)&&(identical(other.ledState, ledState) || other.ledState == ledState)&&(identical(other.logData, logData) || other.logData == logData));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BleDeviceData&&(identical(other.deviceName, deviceName) || other.deviceName == deviceName)&&(identical(other.firmwareVersion, firmwareVersion) || other.firmwareVersion == firmwareVersion)&&(identical(other.temperature, temperature) || other.temperature == temperature)&&(identical(other.humidity, humidity) || other.humidity == humidity)&&(identical(other.batteryLevel, batteryLevel) || other.batteryLevel == batteryLevel)&&(identical(other.status, status) || other.status == status)&&(identical(other.ledState, ledState) || other.ledState == ledState)&&(identical(other.isBonded, isBonded) || other.isBonded == isBonded)&&(identical(other.logData, logData) || other.logData == logData));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,deviceName,firmwareVersion,temperature,humidity,batteryLevel,status,ledState,logData);
+int get hashCode => Object.hash(runtimeType,deviceName,firmwareVersion,temperature,humidity,batteryLevel,status,ledState,isBonded,logData);
 
 @override
 String toString() {
-  return 'BleDeviceData(deviceName: $deviceName, firmwareVersion: $firmwareVersion, temperature: $temperature, humidity: $humidity, batteryLevel: $batteryLevel, status: $status, ledState: $ledState, logData: $logData)';
+  return 'BleDeviceData(deviceName: $deviceName, firmwareVersion: $firmwareVersion, temperature: $temperature, humidity: $humidity, batteryLevel: $batteryLevel, status: $status, ledState: $ledState, isBonded: $isBonded, logData: $logData)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $BleDeviceDataCopyWith<$Res>  {
   factory $BleDeviceDataCopyWith(BleDeviceData value, $Res Function(BleDeviceData) _then) = _$BleDeviceDataCopyWithImpl;
 @useResult
 $Res call({
- String? deviceName, String? firmwareVersion, double? temperature, int? humidity, int? batteryLevel, String? status, bool ledState, String? logData
+ String? deviceName, String? firmwareVersion, double? temperature, int? humidity, int? batteryLevel, String? status, bool ledState, bool isBonded, String? logData
 });
 
 
@@ -62,7 +62,7 @@ class _$BleDeviceDataCopyWithImpl<$Res>
 
 /// Create a copy of BleDeviceData
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? deviceName = freezed,Object? firmwareVersion = freezed,Object? temperature = freezed,Object? humidity = freezed,Object? batteryLevel = freezed,Object? status = freezed,Object? ledState = null,Object? logData = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? deviceName = freezed,Object? firmwareVersion = freezed,Object? temperature = freezed,Object? humidity = freezed,Object? batteryLevel = freezed,Object? status = freezed,Object? ledState = null,Object? isBonded = null,Object? logData = freezed,}) {
   return _then(_self.copyWith(
 deviceName: freezed == deviceName ? _self.deviceName : deviceName // ignore: cast_nullable_to_non_nullable
 as String?,firmwareVersion: freezed == firmwareVersion ? _self.firmwareVersion : firmwareVersion // ignore: cast_nullable_to_non_nullable
@@ -71,6 +71,7 @@ as double?,humidity: freezed == humidity ? _self.humidity : humidity // ignore: 
 as int?,batteryLevel: freezed == batteryLevel ? _self.batteryLevel : batteryLevel // ignore: cast_nullable_to_non_nullable
 as int?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String?,ledState: null == ledState ? _self.ledState : ledState // ignore: cast_nullable_to_non_nullable
+as bool,isBonded: null == isBonded ? _self.isBonded : isBonded // ignore: cast_nullable_to_non_nullable
 as bool,logData: freezed == logData ? _self.logData : logData // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -157,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? deviceName,  String? firmwareVersion,  double? temperature,  int? humidity,  int? batteryLevel,  String? status,  bool ledState,  String? logData)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? deviceName,  String? firmwareVersion,  double? temperature,  int? humidity,  int? batteryLevel,  String? status,  bool ledState,  bool isBonded,  String? logData)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BleDeviceData() when $default != null:
-return $default(_that.deviceName,_that.firmwareVersion,_that.temperature,_that.humidity,_that.batteryLevel,_that.status,_that.ledState,_that.logData);case _:
+return $default(_that.deviceName,_that.firmwareVersion,_that.temperature,_that.humidity,_that.batteryLevel,_that.status,_that.ledState,_that.isBonded,_that.logData);case _:
   return orElse();
 
 }
@@ -178,10 +179,10 @@ return $default(_that.deviceName,_that.firmwareVersion,_that.temperature,_that.h
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? deviceName,  String? firmwareVersion,  double? temperature,  int? humidity,  int? batteryLevel,  String? status,  bool ledState,  String? logData)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? deviceName,  String? firmwareVersion,  double? temperature,  int? humidity,  int? batteryLevel,  String? status,  bool ledState,  bool isBonded,  String? logData)  $default,) {final _that = this;
 switch (_that) {
 case _BleDeviceData():
-return $default(_that.deviceName,_that.firmwareVersion,_that.temperature,_that.humidity,_that.batteryLevel,_that.status,_that.ledState,_that.logData);case _:
+return $default(_that.deviceName,_that.firmwareVersion,_that.temperature,_that.humidity,_that.batteryLevel,_that.status,_that.ledState,_that.isBonded,_that.logData);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +199,10 @@ return $default(_that.deviceName,_that.firmwareVersion,_that.temperature,_that.h
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? deviceName,  String? firmwareVersion,  double? temperature,  int? humidity,  int? batteryLevel,  String? status,  bool ledState,  String? logData)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? deviceName,  String? firmwareVersion,  double? temperature,  int? humidity,  int? batteryLevel,  String? status,  bool ledState,  bool isBonded,  String? logData)?  $default,) {final _that = this;
 switch (_that) {
 case _BleDeviceData() when $default != null:
-return $default(_that.deviceName,_that.firmwareVersion,_that.temperature,_that.humidity,_that.batteryLevel,_that.status,_that.ledState,_that.logData);case _:
+return $default(_that.deviceName,_that.firmwareVersion,_that.temperature,_that.humidity,_that.batteryLevel,_that.status,_that.ledState,_that.isBonded,_that.logData);case _:
   return null;
 
 }
@@ -213,7 +214,7 @@ return $default(_that.deviceName,_that.firmwareVersion,_that.temperature,_that.h
 
 
 class _BleDeviceData extends BleDeviceData {
-  const _BleDeviceData({this.deviceName, this.firmwareVersion, this.temperature, this.humidity, this.batteryLevel, this.status, this.ledState = false, this.logData}): super._();
+  const _BleDeviceData({this.deviceName, this.firmwareVersion, this.temperature, this.humidity, this.batteryLevel, this.status, this.ledState = false, this.isBonded = false, this.logData}): super._();
   
 
 @override final  String? deviceName;
@@ -223,6 +224,7 @@ class _BleDeviceData extends BleDeviceData {
 @override final  int? batteryLevel;
 @override final  String? status;
 @override@JsonKey() final  bool ledState;
+@override@JsonKey() final  bool isBonded;
 @override final  String? logData;
 
 /// Create a copy of BleDeviceData
@@ -235,16 +237,16 @@ _$BleDeviceDataCopyWith<_BleDeviceData> get copyWith => __$BleDeviceDataCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BleDeviceData&&(identical(other.deviceName, deviceName) || other.deviceName == deviceName)&&(identical(other.firmwareVersion, firmwareVersion) || other.firmwareVersion == firmwareVersion)&&(identical(other.temperature, temperature) || other.temperature == temperature)&&(identical(other.humidity, humidity) || other.humidity == humidity)&&(identical(other.batteryLevel, batteryLevel) || other.batteryLevel == batteryLevel)&&(identical(other.status, status) || other.status == status)&&(identical(other.ledState, ledState) || other.ledState == ledState)&&(identical(other.logData, logData) || other.logData == logData));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BleDeviceData&&(identical(other.deviceName, deviceName) || other.deviceName == deviceName)&&(identical(other.firmwareVersion, firmwareVersion) || other.firmwareVersion == firmwareVersion)&&(identical(other.temperature, temperature) || other.temperature == temperature)&&(identical(other.humidity, humidity) || other.humidity == humidity)&&(identical(other.batteryLevel, batteryLevel) || other.batteryLevel == batteryLevel)&&(identical(other.status, status) || other.status == status)&&(identical(other.ledState, ledState) || other.ledState == ledState)&&(identical(other.isBonded, isBonded) || other.isBonded == isBonded)&&(identical(other.logData, logData) || other.logData == logData));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,deviceName,firmwareVersion,temperature,humidity,batteryLevel,status,ledState,logData);
+int get hashCode => Object.hash(runtimeType,deviceName,firmwareVersion,temperature,humidity,batteryLevel,status,ledState,isBonded,logData);
 
 @override
 String toString() {
-  return 'BleDeviceData(deviceName: $deviceName, firmwareVersion: $firmwareVersion, temperature: $temperature, humidity: $humidity, batteryLevel: $batteryLevel, status: $status, ledState: $ledState, logData: $logData)';
+  return 'BleDeviceData(deviceName: $deviceName, firmwareVersion: $firmwareVersion, temperature: $temperature, humidity: $humidity, batteryLevel: $batteryLevel, status: $status, ledState: $ledState, isBonded: $isBonded, logData: $logData)';
 }
 
 
@@ -255,7 +257,7 @@ abstract mixin class _$BleDeviceDataCopyWith<$Res> implements $BleDeviceDataCopy
   factory _$BleDeviceDataCopyWith(_BleDeviceData value, $Res Function(_BleDeviceData) _then) = __$BleDeviceDataCopyWithImpl;
 @override @useResult
 $Res call({
- String? deviceName, String? firmwareVersion, double? temperature, int? humidity, int? batteryLevel, String? status, bool ledState, String? logData
+ String? deviceName, String? firmwareVersion, double? temperature, int? humidity, int? batteryLevel, String? status, bool ledState, bool isBonded, String? logData
 });
 
 
@@ -272,7 +274,7 @@ class __$BleDeviceDataCopyWithImpl<$Res>
 
 /// Create a copy of BleDeviceData
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? deviceName = freezed,Object? firmwareVersion = freezed,Object? temperature = freezed,Object? humidity = freezed,Object? batteryLevel = freezed,Object? status = freezed,Object? ledState = null,Object? logData = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? deviceName = freezed,Object? firmwareVersion = freezed,Object? temperature = freezed,Object? humidity = freezed,Object? batteryLevel = freezed,Object? status = freezed,Object? ledState = null,Object? isBonded = null,Object? logData = freezed,}) {
   return _then(_BleDeviceData(
 deviceName: freezed == deviceName ? _self.deviceName : deviceName // ignore: cast_nullable_to_non_nullable
 as String?,firmwareVersion: freezed == firmwareVersion ? _self.firmwareVersion : firmwareVersion // ignore: cast_nullable_to_non_nullable
@@ -281,6 +283,7 @@ as double?,humidity: freezed == humidity ? _self.humidity : humidity // ignore: 
 as int?,batteryLevel: freezed == batteryLevel ? _self.batteryLevel : batteryLevel // ignore: cast_nullable_to_non_nullable
 as int?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String?,ledState: null == ledState ? _self.ledState : ledState // ignore: cast_nullable_to_non_nullable
+as bool,isBonded: null == isBonded ? _self.isBonded : isBonded // ignore: cast_nullable_to_non_nullable
 as bool,logData: freezed == logData ? _self.logData : logData // ignore: cast_nullable_to_non_nullable
 as String?,
   ));

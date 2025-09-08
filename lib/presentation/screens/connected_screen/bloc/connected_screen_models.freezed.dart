@@ -55,7 +55,7 @@ extension ConnectedScreenEventPatterns on ConnectedScreenEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( InitEvent value)?  init,TResult Function( UpdateDeviceDataEvent value)?  updateDeviceData,TResult Function( ReadDeviceInfoEvent value)?  readDeviceInfo,TResult Function( ToggleLedEvent value)?  toggleLed,TResult Function( SendRandomCommandEvent value)?  sendRandomCommand,TResult Function( UpdateRandomStatusEvent value)?  updateRandomStatus,TResult Function( DisconnectEvent value)?  disconnect,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( InitEvent value)?  init,TResult Function( UpdateDeviceDataEvent value)?  updateDeviceData,TResult Function( ReadDeviceInfoEvent value)?  readDeviceInfo,TResult Function( ToggleLedEvent value)?  toggleLed,TResult Function( SendRandomCommandEvent value)?  sendRandomCommand,TResult Function( UpdateRandomStatusEvent value)?  updateRandomStatus,TResult Function( DisconnectEvent value)?  disconnect,TResult Function( CreateBondEvent value)?  createBond,TResult Function( RemoveBondEvent value)?  removeBond,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case InitEvent() when init != null:
@@ -65,7 +65,9 @@ return readDeviceInfo(_that);case ToggleLedEvent() when toggleLed != null:
 return toggleLed(_that);case SendRandomCommandEvent() when sendRandomCommand != null:
 return sendRandomCommand(_that);case UpdateRandomStatusEvent() when updateRandomStatus != null:
 return updateRandomStatus(_that);case DisconnectEvent() when disconnect != null:
-return disconnect(_that);case _:
+return disconnect(_that);case CreateBondEvent() when createBond != null:
+return createBond(_that);case RemoveBondEvent() when removeBond != null:
+return removeBond(_that);case _:
   return orElse();
 
 }
@@ -83,7 +85,7 @@ return disconnect(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( InitEvent value)  init,required TResult Function( UpdateDeviceDataEvent value)  updateDeviceData,required TResult Function( ReadDeviceInfoEvent value)  readDeviceInfo,required TResult Function( ToggleLedEvent value)  toggleLed,required TResult Function( SendRandomCommandEvent value)  sendRandomCommand,required TResult Function( UpdateRandomStatusEvent value)  updateRandomStatus,required TResult Function( DisconnectEvent value)  disconnect,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( InitEvent value)  init,required TResult Function( UpdateDeviceDataEvent value)  updateDeviceData,required TResult Function( ReadDeviceInfoEvent value)  readDeviceInfo,required TResult Function( ToggleLedEvent value)  toggleLed,required TResult Function( SendRandomCommandEvent value)  sendRandomCommand,required TResult Function( UpdateRandomStatusEvent value)  updateRandomStatus,required TResult Function( DisconnectEvent value)  disconnect,required TResult Function( CreateBondEvent value)  createBond,required TResult Function( RemoveBondEvent value)  removeBond,}){
 final _that = this;
 switch (_that) {
 case InitEvent():
@@ -93,7 +95,9 @@ return readDeviceInfo(_that);case ToggleLedEvent():
 return toggleLed(_that);case SendRandomCommandEvent():
 return sendRandomCommand(_that);case UpdateRandomStatusEvent():
 return updateRandomStatus(_that);case DisconnectEvent():
-return disconnect(_that);case _:
+return disconnect(_that);case CreateBondEvent():
+return createBond(_that);case RemoveBondEvent():
+return removeBond(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -110,7 +114,7 @@ return disconnect(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( InitEvent value)?  init,TResult? Function( UpdateDeviceDataEvent value)?  updateDeviceData,TResult? Function( ReadDeviceInfoEvent value)?  readDeviceInfo,TResult? Function( ToggleLedEvent value)?  toggleLed,TResult? Function( SendRandomCommandEvent value)?  sendRandomCommand,TResult? Function( UpdateRandomStatusEvent value)?  updateRandomStatus,TResult? Function( DisconnectEvent value)?  disconnect,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( InitEvent value)?  init,TResult? Function( UpdateDeviceDataEvent value)?  updateDeviceData,TResult? Function( ReadDeviceInfoEvent value)?  readDeviceInfo,TResult? Function( ToggleLedEvent value)?  toggleLed,TResult? Function( SendRandomCommandEvent value)?  sendRandomCommand,TResult? Function( UpdateRandomStatusEvent value)?  updateRandomStatus,TResult? Function( DisconnectEvent value)?  disconnect,TResult? Function( CreateBondEvent value)?  createBond,TResult? Function( RemoveBondEvent value)?  removeBond,}){
 final _that = this;
 switch (_that) {
 case InitEvent() when init != null:
@@ -120,7 +124,9 @@ return readDeviceInfo(_that);case ToggleLedEvent() when toggleLed != null:
 return toggleLed(_that);case SendRandomCommandEvent() when sendRandomCommand != null:
 return sendRandomCommand(_that);case UpdateRandomStatusEvent() when updateRandomStatus != null:
 return updateRandomStatus(_that);case DisconnectEvent() when disconnect != null:
-return disconnect(_that);case _:
+return disconnect(_that);case CreateBondEvent() when createBond != null:
+return createBond(_that);case RemoveBondEvent() when removeBond != null:
+return removeBond(_that);case _:
   return null;
 
 }
@@ -137,7 +143,7 @@ return disconnect(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  init,TResult Function( BleDeviceData deviceData)?  updateDeviceData,TResult Function()?  readDeviceInfo,TResult Function()?  toggleLed,TResult Function()?  sendRandomCommand,TResult Function()?  updateRandomStatus,TResult Function()?  disconnect,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  init,TResult Function( BleDeviceData deviceData)?  updateDeviceData,TResult Function()?  readDeviceInfo,TResult Function()?  toggleLed,TResult Function()?  sendRandomCommand,TResult Function()?  updateRandomStatus,TResult Function()?  disconnect,TResult Function()?  createBond,TResult Function()?  removeBond,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case InitEvent() when init != null:
 return init();case UpdateDeviceDataEvent() when updateDeviceData != null:
@@ -146,7 +152,9 @@ return readDeviceInfo();case ToggleLedEvent() when toggleLed != null:
 return toggleLed();case SendRandomCommandEvent() when sendRandomCommand != null:
 return sendRandomCommand();case UpdateRandomStatusEvent() when updateRandomStatus != null:
 return updateRandomStatus();case DisconnectEvent() when disconnect != null:
-return disconnect();case _:
+return disconnect();case CreateBondEvent() when createBond != null:
+return createBond();case RemoveBondEvent() when removeBond != null:
+return removeBond();case _:
   return orElse();
 
 }
@@ -164,7 +172,7 @@ return disconnect();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  init,required TResult Function( BleDeviceData deviceData)  updateDeviceData,required TResult Function()  readDeviceInfo,required TResult Function()  toggleLed,required TResult Function()  sendRandomCommand,required TResult Function()  updateRandomStatus,required TResult Function()  disconnect,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  init,required TResult Function( BleDeviceData deviceData)  updateDeviceData,required TResult Function()  readDeviceInfo,required TResult Function()  toggleLed,required TResult Function()  sendRandomCommand,required TResult Function()  updateRandomStatus,required TResult Function()  disconnect,required TResult Function()  createBond,required TResult Function()  removeBond,}) {final _that = this;
 switch (_that) {
 case InitEvent():
 return init();case UpdateDeviceDataEvent():
@@ -173,7 +181,9 @@ return readDeviceInfo();case ToggleLedEvent():
 return toggleLed();case SendRandomCommandEvent():
 return sendRandomCommand();case UpdateRandomStatusEvent():
 return updateRandomStatus();case DisconnectEvent():
-return disconnect();case _:
+return disconnect();case CreateBondEvent():
+return createBond();case RemoveBondEvent():
+return removeBond();case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -190,7 +200,7 @@ return disconnect();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  init,TResult? Function( BleDeviceData deviceData)?  updateDeviceData,TResult? Function()?  readDeviceInfo,TResult? Function()?  toggleLed,TResult? Function()?  sendRandomCommand,TResult? Function()?  updateRandomStatus,TResult? Function()?  disconnect,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  init,TResult? Function( BleDeviceData deviceData)?  updateDeviceData,TResult? Function()?  readDeviceInfo,TResult? Function()?  toggleLed,TResult? Function()?  sendRandomCommand,TResult? Function()?  updateRandomStatus,TResult? Function()?  disconnect,TResult? Function()?  createBond,TResult? Function()?  removeBond,}) {final _that = this;
 switch (_that) {
 case InitEvent() when init != null:
 return init();case UpdateDeviceDataEvent() when updateDeviceData != null:
@@ -199,7 +209,9 @@ return readDeviceInfo();case ToggleLedEvent() when toggleLed != null:
 return toggleLed();case SendRandomCommandEvent() when sendRandomCommand != null:
 return sendRandomCommand();case UpdateRandomStatusEvent() when updateRandomStatus != null:
 return updateRandomStatus();case DisconnectEvent() when disconnect != null:
-return disconnect();case _:
+return disconnect();case CreateBondEvent() when createBond != null:
+return createBond();case RemoveBondEvent() when removeBond != null:
+return removeBond();case _:
   return null;
 
 }
@@ -466,6 +478,70 @@ int get hashCode => runtimeType.hashCode;
 @override
 String toString() {
   return 'ConnectedScreenEvent.disconnect()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class CreateBondEvent implements ConnectedScreenEvent {
+  const CreateBondEvent();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateBondEvent);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'ConnectedScreenEvent.createBond()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class RemoveBondEvent implements ConnectedScreenEvent {
+  const RemoveBondEvent();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RemoveBondEvent);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'ConnectedScreenEvent.removeBond()';
 }
 
 
@@ -793,12 +869,14 @@ extension ConnectedScreenSRPatterns on ConnectedScreenSR {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Disconnected value)?  disconnected,TResult Function( _CommandSent value)?  commandSent,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Disconnected value)?  disconnected,TResult Function( _CommandSent value)?  commandSent,TResult Function( _BondingSuccess value)?  bondingSuccess,TResult Function( _RemoveBondSuccess value)?  removeBond,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _Disconnected() when disconnected != null:
 return disconnected(_that);case _CommandSent() when commandSent != null:
-return commandSent(_that);case _:
+return commandSent(_that);case _BondingSuccess() when bondingSuccess != null:
+return bondingSuccess(_that);case _RemoveBondSuccess() when removeBond != null:
+return removeBond(_that);case _:
   return orElse();
 
 }
@@ -816,12 +894,14 @@ return commandSent(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Disconnected value)  disconnected,required TResult Function( _CommandSent value)  commandSent,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Disconnected value)  disconnected,required TResult Function( _CommandSent value)  commandSent,required TResult Function( _BondingSuccess value)  bondingSuccess,required TResult Function( _RemoveBondSuccess value)  removeBond,}){
 final _that = this;
 switch (_that) {
 case _Disconnected():
 return disconnected(_that);case _CommandSent():
-return commandSent(_that);case _:
+return commandSent(_that);case _BondingSuccess():
+return bondingSuccess(_that);case _RemoveBondSuccess():
+return removeBond(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -838,12 +918,14 @@ return commandSent(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Disconnected value)?  disconnected,TResult? Function( _CommandSent value)?  commandSent,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Disconnected value)?  disconnected,TResult? Function( _CommandSent value)?  commandSent,TResult? Function( _BondingSuccess value)?  bondingSuccess,TResult? Function( _RemoveBondSuccess value)?  removeBond,}){
 final _that = this;
 switch (_that) {
 case _Disconnected() when disconnected != null:
 return disconnected(_that);case _CommandSent() when commandSent != null:
-return commandSent(_that);case _:
+return commandSent(_that);case _BondingSuccess() when bondingSuccess != null:
+return bondingSuccess(_that);case _RemoveBondSuccess() when removeBond != null:
+return removeBond(_that);case _:
   return null;
 
 }
@@ -860,11 +942,13 @@ return commandSent(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  disconnected,TResult Function( String command)?  commandSent,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  disconnected,TResult Function( String command)?  commandSent,TResult Function()?  bondingSuccess,TResult Function()?  removeBond,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Disconnected() when disconnected != null:
 return disconnected();case _CommandSent() when commandSent != null:
-return commandSent(_that.command);case _:
+return commandSent(_that.command);case _BondingSuccess() when bondingSuccess != null:
+return bondingSuccess();case _RemoveBondSuccess() when removeBond != null:
+return removeBond();case _:
   return orElse();
 
 }
@@ -882,11 +966,13 @@ return commandSent(_that.command);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  disconnected,required TResult Function( String command)  commandSent,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  disconnected,required TResult Function( String command)  commandSent,required TResult Function()  bondingSuccess,required TResult Function()  removeBond,}) {final _that = this;
 switch (_that) {
 case _Disconnected():
 return disconnected();case _CommandSent():
-return commandSent(_that.command);case _:
+return commandSent(_that.command);case _BondingSuccess():
+return bondingSuccess();case _RemoveBondSuccess():
+return removeBond();case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -903,11 +989,13 @@ return commandSent(_that.command);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  disconnected,TResult? Function( String command)?  commandSent,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  disconnected,TResult? Function( String command)?  commandSent,TResult? Function()?  bondingSuccess,TResult? Function()?  removeBond,}) {final _that = this;
 switch (_that) {
 case _Disconnected() when disconnected != null:
 return disconnected();case _CommandSent() when commandSent != null:
-return commandSent(_that.command);case _:
+return commandSent(_that.command);case _BondingSuccess() when bondingSuccess != null:
+return bondingSuccess();case _RemoveBondSuccess() when removeBond != null:
+return removeBond();case _:
   return null;
 
 }
@@ -1012,5 +1100,69 @@ as String,
 
 
 }
+
+/// @nodoc
+
+
+class _BondingSuccess implements ConnectedScreenSR {
+  const _BondingSuccess();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BondingSuccess);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'ConnectedScreenSR.bondingSuccess()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _RemoveBondSuccess implements ConnectedScreenSR {
+  const _RemoveBondSuccess();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RemoveBondSuccess);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'ConnectedScreenSR.removeBond()';
+}
+
+
+}
+
+
+
 
 // dart format on

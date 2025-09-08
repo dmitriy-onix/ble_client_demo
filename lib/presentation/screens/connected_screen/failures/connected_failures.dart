@@ -50,3 +50,21 @@ class DisconnectFailure extends ConnectedFailure {
     return 'DisconnectFailure';
   }
 }
+
+class BondingFailure extends ConnectedFailure {
+  BondingFailure() : super(message: 'Failed to bond with device');
+
+  @override
+  String toString() {
+    return 'BondingFailure';
+  }
+}
+
+class BondRemovalFailure extends ConnectedFailure {
+  BondRemovalFailure() : super(message: 'Failed to remove bond');
+
+  @override
+  String toString() {
+    return 'BondRemovalFailure';
+  }
+}

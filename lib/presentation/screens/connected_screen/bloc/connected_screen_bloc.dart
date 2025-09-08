@@ -6,6 +6,7 @@ import 'package:ble_client_demo/models/ble_device_data.dart';
 import 'package:ble_client_demo/presentation/screens/connected_screen/bloc/connected_screen_models.dart';
 import 'package:ble_client_demo/presentation/screens/connected_screen/failures/connected_failures.dart';
 import 'package:ble_client_demo/services/ble_service.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ConnectedScreenBloc
@@ -23,6 +24,7 @@ class ConnectedScreenBloc
   StreamSubscription? _humiditySubscription;
   StreamSubscription? _batterySubscription;
   StreamSubscription? _statusSubscription;
+  StreamSubscription? _bondedSubscription;
 
   static const List<String> _availableCommands = [
     'ping',
@@ -49,6 +51,8 @@ class ConnectedScreenBloc
     on<SendRandomCommandEvent>(_onSendRandomCommand);
     on<UpdateRandomStatusEvent>(_onUpdateRandomStatus);
     on<DisconnectEvent>(_onDisconnect);
+    on<CreateBondEvent>(_onCreateBond);
+    on<RemoveBondEvent>(_onRemoveBond);
   }
 
   FutureOr<void> _onInit(InitEvent event, Emitter<ConnectedScreenState> emit) {
@@ -106,6 +110,26 @@ class ConnectedScreenBloc
         ),
       );
     });
+
+    _bondedSubscription = _bleService.bondedStream.listen((bonded) {
+      add(
+        ConnectedScreenEvent.updateDeviceData(
+          state.deviceData.copyWith(isBonded: bonded),
+        ),
+      );
+    });
+
+    final currentBondedState = _bleService.currentBondedState;
+    debugPrint(
+      '_setupSubscriptions: Current bonded state: $currentBondedState',
+    );
+    if (currentBondedState != state.deviceData.isBonded) {
+      add(
+        ConnectedScreenEvent.updateDeviceData(
+          state.deviceData.copyWith(isBonded: currentBondedState),
+        ),
+      );
+    }
   }
 
   FutureOr<void> _onUpdateDeviceData(
@@ -214,6 +238,38 @@ class ConnectedScreenBloc
     }
   }
 
+  FutureOr<void> _onCreateBond(
+    CreateBondEvent event,
+    Emitter<ConnectedScreenState> emit,
+  ) async {
+    try {
+      final success = await _bleService.createBond();
+      if (success) {
+        addSr(const ConnectedScreenSR.bondingSuccess());
+      } else {
+        onFailure(BondingFailure());
+      }
+    } catch (e) {
+      onFailure(BondingFailure());
+    }
+  }
+
+  FutureOr<void> _onRemoveBond(
+    RemoveBondEvent event,
+    Emitter<ConnectedScreenState> emit,
+  ) async {
+    try {
+      final success = await _bleService.removeBond();
+      if (success) {
+        addSr(const ConnectedScreenSR.removeBond());
+      } else {
+        onFailure(BondRemovalFailure());
+      }
+    } catch (e) {
+      onFailure(BondRemovalFailure());
+    }
+  }
+
   @override
   void dispose() {
     _deviceNameSubscription?.cancel();
@@ -222,6 +278,7 @@ class ConnectedScreenBloc
     _humiditySubscription?.cancel();
     _batterySubscription?.cancel();
     _statusSubscription?.cancel();
+    _bondedSubscription?.cancel();
     super.dispose();
   }
 }

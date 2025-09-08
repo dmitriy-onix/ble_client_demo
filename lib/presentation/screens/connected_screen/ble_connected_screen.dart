@@ -114,6 +114,24 @@ class _BleConnectedScreenState
           ),
         );
       },
+      bondingSuccess: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Device bonded successfully'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      },
+      removeBond: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Device bond removed'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      },
     );
     super.onSR(context, sr);
   }

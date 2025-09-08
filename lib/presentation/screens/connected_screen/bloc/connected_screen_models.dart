@@ -22,6 +22,10 @@ class ConnectedScreenEvent with _$ConnectedScreenEvent {
       UpdateRandomStatusEvent;
 
   const factory ConnectedScreenEvent.disconnect() = DisconnectEvent;
+
+  const factory ConnectedScreenEvent.createBond() = CreateBondEvent;
+
+  const factory ConnectedScreenEvent.removeBond() = RemoveBondEvent;
 }
 
 @freezed
@@ -35,4 +39,8 @@ class ConnectedScreenSR with _$ConnectedScreenSR {
   const factory ConnectedScreenSR.disconnected() = _Disconnected;
 
   const factory ConnectedScreenSR.commandSent(String command) = _CommandSent;
+
+  const factory ConnectedScreenSR.bondingSuccess() = _BondingSuccess;
+
+  const factory ConnectedScreenSR.removeBond() = _RemoveBondSuccess;
 }

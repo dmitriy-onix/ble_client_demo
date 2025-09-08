@@ -12,6 +12,7 @@ abstract class BleDeviceData with _$BleDeviceData {
     int? batteryLevel,
     String? status,
     @Default(false) bool ledState,
+    @Default(false) bool isBonded,
     String? logData,
   }) = _BleDeviceData;
 
