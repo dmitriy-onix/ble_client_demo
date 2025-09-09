@@ -117,6 +117,13 @@ The app connects to devices implementing these custom services:
 3. **Control Service** - LED control (write), commands (write), status (read/write/notify)
 4. **Data Logger Service** - Log data retrieval and management
 
+### BLE Bonding and Pairing
+- **Device Bonding**: Supports BLE device bonding for enhanced security
+- **Pairing Management**: Create and remove bonds between the client and BLE devices
+- **Control Service Access**: Some services (like Control Service) require device bonding
+- **Security Indicators**: Visual feedback for bonded vs. unbonded device states
+- **Bond Status Tracking**: Real-time monitoring of device bond status
+
 ### BLE Server Testing
 Use the included `Creating a BLE Server with nRF Connect.md` guide to set up a test BLE server using nRF Connect Mobile app. The app scans specifically for devices named "TestDevice".
 
@@ -131,7 +138,7 @@ Use the included `Creating a BLE Server with nRF Connect.md` guide to set up a t
 - Flutter SDK: Uses stable channel (^3.8.1)
 - Dart SDK: ^3.8.1
 - Key Dependencies:
-  - `flutter_blue_plus: ^1.35.5` - BLE functionality
+  - `flutter_blue_plus: ^1.35.10` - BLE functionality
   - `get_it: ^8.2.0` - Dependency injection
   - `flutter_bloc: ^9.1.1` - State management
   - `freezed_annotation: ^3.1.0` - Code generation annotations
@@ -186,15 +193,49 @@ lib/
 │   └── ble_service.dart              # Core BLE service implementation
 └── presentation/screens/
     ├── connected_screen/
-    │   ├── ble_connected_screen.dart  # Main connected screen
-    │   └── widgets/                   # Modular UI components
-    │       ├── device_info_card.dart  # Device information display
-    │       ├── sensor_data_card.dart  # Sensor readings display
-    │       ├── control_card.dart      # Device controls
-    │       └── actions_card.dart      # Action buttons
+    │   ├── ble_connected_screen.dart      # Main connected screen
+    │   ├── bloc/                          # Connected screen BLoC
+    │   │   ├── connected_screen_bloc.dart # Connected screen business logic
+    │   │   ├── connected_screen_models.dart # Connected screen state/event models
+    │   │   └── connected_screen_models.freezed.dart # Generated Freezed code
+    │   ├── failures/                      # Connected screen failure models
+    │   │   └── connected_failures.dart   # Error types for connected screen
+    │   └── widgets/                       # Modular UI components
+    │       ├── device_info_card.dart      # Device information display
+    │       ├── sensor_data_card.dart      # Sensor readings display
+    │       ├── control_card.dart          # Device controls
+    │       ├── actions_card.dart          # Action buttons
+    │       └── bonding_card.dart          # Device bonding and pairing controls
     └── scan_screen/
-        └── ble_scan_screen.dart       # Device scanning and connection UI
+        ├── ble_scan_screen.dart           # Device scanning and connection UI
+        ├── bloc/                          # Scan screen BLoC
+        │   ├── scan_screen_bloc.dart      # Scan screen business logic
+        │   ├── scan_screen_models.dart    # Scan screen state/event models
+        │   └── scan_screen_models.freezed.dart # Generated Freezed code
+        └── failures/                      # Scan screen failure models
+            └── scan_failures.dart         # Error types for scan screen
 ```
+
+## BLoC Screen Implementation
+
+Both Scan and Connected screens implement complete BLoC patterns:
+
+**Screen Structure** (Both screens follow this pattern)
+- `Screen.dart` - Main screen widget extending BaseState
+- `bloc/` - Business logic components
+  - `ScreenBloc` - Main BLoC handling events and state changes
+  - `ScreenModels` - Freezed models for states and events
+  - `ScreenModels.freezed.dart` - Generated Freezed code
+- `failures/` - Screen-specific failure models
+- Each screen manages its own state and communicates with BleService
+
+**BLoC Benefits in this project:**
+- Reactive UI updates from BLE service streams
+- Proper separation of business logic from presentation
+- Type-safe event/state handling with Freezed models
+- Single Result events for navigation and one-time UI feedback
+- Progress and failure stream management for loading states
+- Consistent error handling across screens
 
 ## Important Notes
 
@@ -207,3 +248,6 @@ lib/
 - Enhanced BLoC architecture supports Single Result events for one-time UI actions
 - Widget organization follows modular patterns for better maintainability
 - Stream-based reactive programming with proper lifecycle management
+- BLE bonding functionality is integrated for secure device pairing
+- Each screen has its own BLoC for independent state management
+- Failure models are defined per screen for specific error handling

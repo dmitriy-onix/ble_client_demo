@@ -9,6 +9,7 @@ import 'package:ble_client_demo/services/ble_service.dart';
 import 'package:flutter/material.dart';
 
 import 'widgets/actions_card.dart';
+import 'widgets/bonding_card.dart';
 import 'widgets/control_card.dart';
 import 'widgets/device_info_card.dart';
 import 'widgets/sensor_data_card.dart';
@@ -66,6 +67,20 @@ class _BleConnectedScreenState
                   onToggleLed: () => blocOf(
                     context,
                   ).add(const ConnectedScreenEvent.toggleLed()),
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+            blocBuilder(
+              builder: (context, state) {
+                return BondingCard(
+                  deviceData: state.deviceData,
+                  onCreateBond: () => blocOf(
+                    context,
+                  ).add(const ConnectedScreenEvent.createBond()),
+                  onRemoveBond: () => blocOf(
+                    context,
+                  ).add(const ConnectedScreenEvent.removeBond()),
                 );
               },
             ),
