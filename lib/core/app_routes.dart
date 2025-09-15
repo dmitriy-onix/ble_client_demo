@@ -4,4 +4,6 @@ class AppRoutes {
   static const String connected = '/connected';
   static const String reactiveScan = '/reactive-scan';
   static const String reactiveConnected = '/reactive-connected';
+  static const String bleScan = '/ble-scan';
+  static const String bleConnected = '/ble-connected';
 }

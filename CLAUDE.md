@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Flutter BLE (Bluetooth Low Energy) client demo application that connects to custom BLE servers. The app features a complete BLE client implementation with device scanning, connection management, and real-time sensor data monitoring. The project uses clean architecture with BLoC pattern for state management, Freezed for immutable data models, and modular widget organization.
+This is a Flutter BLE (Bluetooth Low Energy) client demo application that connects to custom BLE servers. The app features multiple BLE client implementations with device scanning, connection management, and real-time sensor data monitoring. The project demonstrates three different BLE package implementations (flutter_blue_plus, flutter_reactive_ble, bluetooth_low_energy), uses clean architecture with BLoC pattern for state management, Freezed for immutable data models, and modular widget organization.
 
 ## Development Commands
 
@@ -45,9 +45,10 @@ The app follows a clean architecture pattern with the BLoC pattern for state man
 ### Core Architecture Components
 
 **Dependency Injection**: Uses GetIt for singleton service management
-- `BleService` is registered as a singleton in `service_locator.dart`
-- Initialized in `main.dart` before app startup
-- Accessed via `getIt<BleService>()` throughout the app
+- `BleService` (flutter_blue_plus) is registered as a singleton in `service_locator.dart`
+- `ReactiveBluetoothService` (flutter_reactive_ble) is registered as a singleton
+- Both services initialized in `main.dart` before app startup
+- Accessed via `getIt<BleService>()` or `getIt<ReactiveBluetoothService>()` throughout the app
 
 **State Management**: BLoC Architecture with OnixFlutterTeam's enhanced BLoC classes
 - Uses custom `BaseBloc` and `BaseCubit` for enhanced functionality
@@ -55,9 +56,12 @@ The app follows a clean architecture pattern with the BLoC pattern for state man
 - Progress and failure stream mixins for consistent loading/error handling
 - Stream-based reactive updates with proper lifecycle management
 
-**Navigation**: Two-screen flow with centralized route management
-- Scan Screen (`/scan`) - Device discovery and connection
-- Connected Screen (`/connected`) - Device interaction and control
+**Navigation**: Multi-screen flow with centralized route management
+- Home Screen (`/`) - Navigation hub for different BLE implementations
+- Scan Screen (`/scan`) - Device discovery and connection using flutter_blue_plus
+- Connected Screen (`/connected`) - Device interaction and control using flutter_blue_plus
+- Reactive Scan Screen (`/reactive-scan`) - Device discovery using flutter_reactive_ble
+- Reactive Connected Screen (`/reactive-connected`) - Device interaction using flutter_reactive_ble
 - Routes defined in `AppRoutes` class for type safety
 
 **Widget Organization**: Modular widget structure
@@ -96,11 +100,28 @@ The project includes a complete BLoC architecture setup from OnixFlutterTeam wit
 
 ## Key Services and Models
 
-**BleService** (`lib/services/ble_service.dart`)
-- Singleton service handling all BLE operations
-- Manages device scanning, connection, and characteristic operations
-- Provides reactive streams for device data updates
-- Handles four custom BLE services defined in UUID constants
+**Multiple BLE Service Implementations**
+
+1. **BleService** (`lib/services/ble_service.dart`)
+   - Uses flutter_blue_plus package
+   - Singleton service handling BLE operations with flutter_blue_plus
+   - Manages device scanning, connection, and characteristic operations
+   - Provides reactive streams for device data updates
+   - Supports device bonding and pairing functionality
+
+2. **ReactiveBluetoothService** (`lib/services/reactive_bluetooth_service.dart`)
+   - Uses flutter_reactive_ble package
+   - Alternative BLE implementation for comparison
+   - Reactive streams-based architecture
+   - Handles device scanning and connection management
+
+3. **BluetoothLowEnergyService** (`lib/services/bluetooth_low_energy_service.dart`)
+   - Uses bluetooth_low_energy package
+   - Third BLE implementation option
+   - Similar functionality with different API approach
+   - Supports bonding and GATT operations
+
+All services handle the same four custom BLE services defined in UUID constants
 
 **BLE UUID Organization** (`lib/constants/ble_uuids.dart`)
 - Device Information Service: name, firmware version
@@ -138,7 +159,9 @@ Use the included `Creating a BLE Server with nRF Connect.md` guide to set up a t
 - Flutter SDK: Uses stable channel (^3.8.1)
 - Dart SDK: ^3.8.1
 - Key Dependencies:
-  - `flutter_blue_plus: ^1.35.10` - BLE functionality
+  - `flutter_blue_plus: ^1.35.10` - Primary BLE functionality
+  - `flutter_reactive_ble: ^5.4.0` - Reactive BLE implementation
+  - `bluetooth_low_energy: ^6.1.0` - Alternative BLE implementation
   - `get_it: ^8.2.0` - Dependency injection
   - `flutter_bloc: ^9.1.1` - State management
   - `freezed_annotation: ^3.1.0` - Code generation annotations
@@ -176,9 +199,9 @@ lib/
 │   │   └── stream_listener.dart       # Stream lifecycle widget
 │   ├── domain/                        # Domain layer components
 │   │   ├── failure/                   # Error handling models
+│   │   │   └── networking/            # Network-specific failures
 │   │   └── progress_state/            # Loading state models
-│   └── models/                        # Core architecture models
-│       └── core_models.dart           # Base models for architecture
+│   └── models/                        # Core architecture models (if exists)
 ├── core/
 │   ├── service_locator.dart           # GetIt dependency injection setup
 │   └── app_routes.dart                # Centralized route constants
@@ -189,36 +212,88 @@ lib/
 │   ├── ble_device_data.freezed.dart  # Generated Freezed code
 │   ├── ble_connection_state.dart     # Connection state management
 │   └── ble_connection_state.freezed.dart # Generated Freezed code
-├── services/
-│   └── ble_service.dart              # Core BLE service implementation
+├── services/                          # BLE service implementations
+│   ├── ble_service.dart              # flutter_blue_plus BLE service
+│   ├── reactive_bluetooth_service.dart # flutter_reactive_ble service
+│   └── bluetooth_low_energy_service.dart # bluetooth_low_energy service
 └── presentation/screens/
-    ├── connected_screen/
-    │   ├── ble_connected_screen.dart      # Main connected screen
-    │   ├── bloc/                          # Connected screen BLoC
+    ├── home_screen/                   # Navigation hub
+    │   ├── home_screen.dart           # Home screen with navigation cards
+    │   └── widgets/
+    │       └── navigation_card.dart   # Navigation card widget
+    ├── scan_screen/                   # flutter_blue_plus implementation
+    │   ├── ble_scan_screen.dart       # Device scanning and connection UI
+    │   ├── bloc/                      # Scan screen BLoC
+    │   │   ├── scan_screen_bloc.dart  # Scan screen business logic
+    │   │   ├── scan_screen_models.dart # Scan screen state/event models
+    │   │   └── scan_screen_models.freezed.dart # Generated Freezed code
+    │   └── failures/                  # Scan screen failure models
+    │       └── scan_failures.dart     # Error types for scan screen
+    ├── connected_screen/              # flutter_blue_plus implementation
+    │   ├── ble_connected_screen.dart  # Main connected screen
+    │   ├── bloc/                      # Connected screen BLoC
     │   │   ├── connected_screen_bloc.dart # Connected screen business logic
     │   │   ├── connected_screen_models.dart # Connected screen state/event models
     │   │   └── connected_screen_models.freezed.dart # Generated Freezed code
-    │   ├── failures/                      # Connected screen failure models
-    │   │   └── connected_failures.dart   # Error types for connected screen
-    │   └── widgets/                       # Modular UI components
-    │       ├── device_info_card.dart      # Device information display
-    │       ├── sensor_data_card.dart      # Sensor readings display
-    │       ├── control_card.dart          # Device controls
-    │       ├── actions_card.dart          # Action buttons
-    │       └── bonding_card.dart          # Device bonding and pairing controls
-    └── scan_screen/
-        ├── ble_scan_screen.dart           # Device scanning and connection UI
-        ├── bloc/                          # Scan screen BLoC
-        │   ├── scan_screen_bloc.dart      # Scan screen business logic
-        │   ├── scan_screen_models.dart    # Scan screen state/event models
-        │   └── scan_screen_models.freezed.dart # Generated Freezed code
-        └── failures/                      # Scan screen failure models
-            └── scan_failures.dart         # Error types for scan screen
+    │   ├── failures/                  # Connected screen failure models
+    │   │   └── connected_failures.dart # Error types for connected screen
+    │   └── widgets/                   # Modular UI components
+    │       ├── device_info_card.dart  # Device information display
+    │       ├── sensor_data_card.dart  # Sensor readings display
+    │       ├── control_card.dart      # Device controls
+    │       ├── actions_card.dart      # Action buttons
+    │       └── bonding_card.dart      # Device bonding and pairing controls
+    ├── reactive_scan_screen/          # flutter_reactive_ble implementation
+    │   ├── reactive_ble_scan_screen.dart # Reactive BLE scanning screen
+    │   ├── bloc/                      # Reactive scan screen BLoC
+    │   │   ├── reactive_scan_screen_bloc.dart # Reactive scan business logic
+    │   │   ├── reactive_scan_screen_models.dart # Reactive scan state/event models
+    │   │   └── reactive_scan_screen_models.freezed.dart # Generated code
+    │   └── failures/                  # Reactive scan failure models
+    │       └── reactive_scan_failures.dart # Error types for reactive scan
+    └── reactive_connected_screen/     # flutter_reactive_ble implementation
+        ├── reactive_ble_connected_screen.dart # Reactive BLE connected screen
+        ├── bloc/                      # Reactive connected screen BLoC
+        │   ├── reactive_connected_screen_bloc.dart # Reactive connected logic
+        │   ├── reactive_connected_screen_models.dart # Reactive connected state/events
+        │   └── reactive_connected_screen_models.freezed.dart # Generated code
+        ├── failures/                  # Reactive connected failure models
+        │   └── reactive_connected_failures.dart # Error types for reactive connected
+        └── widgets/                   # Reactive UI components
+            ├── reactive_device_info_card.dart # Reactive device info display
+            ├── reactive_sensor_data_card.dart # Reactive sensor readings display
+            ├── reactive_control_card.dart # Reactive device controls
+            ├── reactive_actions_card.dart # Reactive action buttons
+            └── reactive_bonding_card.dart # Reactive bonding controls
 ```
+
+## BLE Package Comparison
+
+This app demonstrates three different Flutter BLE package implementations to compare their approaches:
+
+### flutter_blue_plus Implementation
+- **Screens**: `/scan` and `/connected`
+- **Service**: `BleService`
+- **Approach**: Traditional callback-based BLE operations
+- **Features**: Full bonding support, comprehensive error handling
+- **Best for**: Mature projects requiring stable BLE functionality
+
+### flutter_reactive_ble Implementation
+- **Screens**: `/reactive-scan` and `/reactive-connected`
+- **Service**: `ReactiveBluetoothService`
+- **Approach**: Reactive streams-first architecture
+- **Features**: Built-in reactive patterns, efficient scanning
+- **Best for**: Apps requiring high-performance reactive BLE operations
+
+### bluetooth_low_energy Implementation
+- **Service**: `BluetoothLowEnergyService` (service-only, no screens yet)
+- **Approach**: Modern GATT-focused API
+- **Features**: Cross-platform consistency, efficient GATT operations
+- **Best for**: Cross-platform apps requiring consistent BLE behavior
 
 ## BLoC Screen Implementation
 
-Both Scan and Connected screens implement complete BLoC patterns:
+All Scan and Connected screens implement complete BLoC patterns:
 
 **Screen Structure** (Both screens follow this pattern)
 - `Screen.dart` - Main screen widget extending BaseState

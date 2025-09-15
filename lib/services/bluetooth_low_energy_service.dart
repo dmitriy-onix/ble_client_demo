@@ -26,10 +26,6 @@ class BluetoothLowEnergyService {
       StreamController<int>.broadcast();
   final StreamController<String> _statusController =
       StreamController<String>.broadcast();
-  final StreamController<bool> _bondedController =
-      StreamController<bool>.broadcast();
-
-  bool _currentBondedState = false;
 
   Stream<String> get deviceNameStream => _deviceNameController.stream;
 
@@ -42,10 +38,6 @@ class BluetoothLowEnergyService {
   Stream<int> get batteryLevelStream => _batteryLevelController.stream;
 
   Stream<String> get statusStream => _statusController.stream;
-
-  Stream<bool> get bondedStream => _bondedController.stream;
-
-  bool get currentBondedState => _currentBondedState;
 
   Future<void> startScan() async {
     await CentralManager().startDiscovery();
@@ -63,7 +55,6 @@ class BluetoothLowEnergyService {
         'BluetoothLowEnergyService: Attempting to connect to $peripheral',
       );
 
-      await CentralManager().connect(peripheral);
 
       // Wait for connection to be established
       final connectionCompleter = Completer<bool>();
@@ -87,6 +78,8 @@ class BluetoothLowEnergyService {
           }
         }
       });
+
+      await CentralManager().connect(peripheral);
 
       final connected = await connectionCompleter.future.timeout(
         const Duration(seconds: 15),
@@ -117,7 +110,6 @@ class BluetoothLowEnergyService {
       connectedDeviceState = null;
       connectedPeripheral = null;
     }
-    _currentBondedState = false;
     _connectionStateSubscription?.cancel();
     _connectionStateSubscription = null;
   }
@@ -221,8 +213,6 @@ class BluetoothLowEnergyService {
         if (args.state == ConnectionState.disconnected) {
           connectedDeviceState = null;
           connectedPeripheral = null;
-          _currentBondedState = false;
-          _bondedController.add(false);
         }
       }
     });
@@ -560,55 +550,6 @@ class BluetoothLowEnergyService {
 
   bool get isConnected => connectedDeviceState == ConnectionState.connected;
 
-  bool get isBonded {
-    // bluetooth_low_energy package handles bonding differently
-    // For now, return the current state
-    return _currentBondedState;
-  }
-
-  Future<bool> createBond() async {
-    if (connectedPeripheral == null) return false;
-
-    try {
-      debugPrint(
-        'BluetoothLowEnergyService createBond: Attempting to bond with device $connectedPeripheral',
-      );
-
-      // Note: bluetooth_low_energy package may handle bonding automatically
-      // during characteristic access that requires encryption
-      // For now, we'll simulate bonding by setting the state
-      _currentBondedState = true;
-      _bondedController.add(true);
-
-      return true;
-    } catch (e) {
-      debugPrint('BluetoothLowEnergyService createBond error: $e');
-      _currentBondedState = false;
-      _bondedController.add(false);
-      return false;
-    }
-  }
-
-  Future<bool> removeBond() async {
-    if (connectedPeripheral == null) return false;
-
-    try {
-      debugPrint(
-        'BluetoothLowEnergyService removeBond: Removing bond with device $connectedPeripheral',
-      );
-
-      // Note: bluetooth_low_energy package may not have explicit bond removal
-      // For now, we'll simulate bond removal by setting the state
-      _currentBondedState = false;
-      _bondedController.add(false);
-
-      return true;
-    } catch (e) {
-      debugPrint('BluetoothLowEnergyService removeBond error: $e');
-      return false;
-    }
-  }
-
   void dispose() {
     _connectionStateSubscription?.cancel();
     _deviceNameController.close();
@@ -617,6 +558,5 @@ class BluetoothLowEnergyService {
     _humidityController.close();
     _batteryLevelController.close();
     _statusController.close();
-    _bondedController.close();
   }
 }

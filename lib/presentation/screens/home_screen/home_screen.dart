@@ -50,9 +50,17 @@ class HomeScreen extends StatelessWidget {
                 onTap: () =>
                     Navigator.pushNamed(context, AppRoutes.reactiveScan),
               ),
+              const SizedBox(height: 24),
+              NavigationCard(
+                title: 'Bluetooth Low Energy',
+                subtitle: 'Using bluetooth_low_energy package',
+                icon: Icons.bluetooth_searching,
+                color: Colors.purple,
+                onTap: () => Navigator.pushNamed(context, AppRoutes.bleScan),
+              ),
               const SizedBox(height: 48),
               Text(
-                'Both implementations provide the same functionality\nfor performance and feature comparison.',
+                'All three implementations provide the same functionality\nfor performance and feature comparison.',
                 style: Theme.of(context).textTheme.bodySmall,
                 textAlign: TextAlign.center,
               ),
